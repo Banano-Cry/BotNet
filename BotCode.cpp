@@ -21,7 +21,7 @@ void StartUseWinsockDll(WSADATA wsadata){
 
 void CreateSockAddr_In(sockaddr_in &server){
 	server.sin_family = AF_INET; //AF_INET: ipV4
-	server.sin_addr.s_addr = inet_addr("0.0.0.0"); //Direccion IP
+	server.sin_addr.s_addr = inet_addr("192.168.0.7"); //Direccion IP
 	server.sin_port = htons(8080); //Puerto
 }
 
@@ -30,8 +30,20 @@ void CreateSocket(SOCKET &socket){
 	
 }	
 
-void ConnectSocket(SOCKET socket,){
-	connect(socket, (sockaddr *) &server, sizeof(server));
+void ConnectSocket(SOCKET &socket,sockaddr_in &server){
+	if(connect(socket, (sockaddr *) &server, sizeof(server)) == SOCKET_ERROR){
+		prtinf("Error al conectar\n");
+		closesocket(socket);
+		WSACleanup();
+		exit(0);
+	}
+	else{
+		printf("Conexion establecida\n");
+		getchar();
+	}
+	closesocket(socket);
+	WSACleanup();
+	exit(0);
 }
 
 int main(){
@@ -42,8 +54,6 @@ int main(){
 	StartUseWinsockDll(wsadata);
 	createSocket(socket);
 	CreateSockAddr_In(server);
-	ConnectSocket();
-
-
+	ConnectSocket(socket,server);
 return 0;
 }
