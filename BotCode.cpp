@@ -1,5 +1,7 @@
 #include <winsock2.h> //Crear socket
 #include <windows.h> //Ocultar la consola
+#include <stdio.h>
+#include <ws2tcpip.h>
 
 #pragma comment(lib, "Ws2_32.lib")
 
@@ -25,35 +27,36 @@ void CreateSockAddr_In(sockaddr_in &server){
 	server.sin_port = htons(8080); //Puerto
 }
 
-void CreateSocket(SOCKET &socket){
-	socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); //AF_INET: Ipv4 (2); SOCK_STREAM: TCP (1); IPPROTO_TCP: Protocolo TCP (6)
+void CreateSocket(SOCKET &socketS){
+	socketS = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP); //AF_INET: Ipv4 (2); SOCK_STREAM: TCP (1); IPPROTO_TCP: Protocolo TCP (6)
 	
 }	
 
 void ConnectSocket(SOCKET &socket,sockaddr_in &server){
-	if(connect(socket, (sockaddr *) &server, sizeof(server)) == SOCKET_ERROR){
-		prtinf("Error al conectar\n");
-		closesocket(socket);
-		WSACleanup();
-		exit(0);
+	if(connect(socketS, (sockaddr *) &server, sizeof(server)) == SOCKET_ERROR){
+		printf("Error al conectar\n");
 	}
 	else{
 		printf("Conexion establecida\n");
+		char Received[1024] = "";
+		int Result = recv(tcpsock,Received,1024,0);
+		printf("Received: %s",Received);
+		printf("Longitud: %d",Result);
 		getchar();
 	}
-	closesocket(socket);
+	closesocket(socketS);
 	WSACleanup();
 	exit(0);
 }
 
 int main(){
-	WSADATA wsadatal;
+	WSADATA wsadata;
 	sockaddr_in server;
-	SOCKET socket;
+	SOCKET socketS;
 	HideCmdWindows();
 	StartUseWinsockDll(wsadata);
-	createSocket(socket);
+	createSocket(socketS);
 	CreateSockAddr_In(server);
-	ConnectSocket(socket,server);
+	ConnectSocket(socketS,server);
 return 0;
 }
