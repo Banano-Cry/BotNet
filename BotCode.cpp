@@ -32,14 +32,14 @@ void CreateSocket(SOCKET &socketS){
 	
 }	
 
-void ConnectSocket(SOCKET &socket,sockaddr_in &server){
+void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 	if(connect(socketS, (sockaddr *) &server, sizeof(server)) == SOCKET_ERROR){
 		printf("Error al conectar\n");
 	}
 	else{
 		printf("Conexion establecida\n");
 		char Received[1024] = "";
-		int Result = recv(tcpsock,Received,1024,0);
+		int Result = recv(socketS,Received,1024,0);
 		printf("Received: %s",Received);
 		printf("Longitud: %d",Result);
 		getchar();
@@ -55,7 +55,7 @@ int main(){
 	SOCKET socketS;
 	HideCmdWindows();
 	StartUseWinsockDll(wsadata);
-	createSocket(socketS);
+	CreateSocket(socketS);
 	CreateSockAddr_In(server);
 	ConnectSocket(socketS,server);
 return 0;
