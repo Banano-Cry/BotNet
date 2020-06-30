@@ -44,7 +44,7 @@ class botThread(threading.Thread):
         while True:
             executeBotCmd = self.principalQueue.get()
             try:
-                executeBotCmd+= "\n"
+                #executeBotCmd+= "\n"
                 self.bot.send(executeBotCmd.encode('utf-8'))
                 ansBot = (self.bot.recv(1024)).decode('utf-8')
                 print(ansBot)
