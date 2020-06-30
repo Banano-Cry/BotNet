@@ -45,6 +45,8 @@ class botThread(threading.Thread):
             try:
                 executeBotCmd+= "\n"
                 self.bot.send(executeBotCmd.encode('utf-8'))
+                ansBot = (self.bot.recv(1024)).decode('utf-8')
+                print(ansBot)
             except Exception as ex:
                 print('Error al ejecutar el comando <{}>'.format(ex))
                 break

