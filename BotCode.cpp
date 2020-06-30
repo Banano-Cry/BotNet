@@ -53,9 +53,9 @@ void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 		exit(0);
 	}
 	else{
+		printf("conexion establecida\n");
+		char Received[1024] = "";
 		while(true){
-			printf("Conexion establecida\n");
-			char Received[1024] = "";
 			int Result = recv(socketS,Received,1024,0);
 		//printf("Received: %s",Received);
 		//printf("Longitud: %d",Result);
@@ -65,7 +65,7 @@ void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 				WSACleanup();
 				exit(0);
 			}
-			else if((strcmp(Received), "pwd")==0){
+			else if(strcmp(Received, "pwd")==0){
 				char buff[250] = "";
 				pwd(buff,250);
 				strcat(buff,"\n");
