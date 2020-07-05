@@ -27,9 +27,9 @@ void cmd(char* ansVal, int ansLong, char *command){
 	strcat(finalCommand,command);
 	strcat(finalCommand," > a.txt");
 	
-	if(32 >= (int)(shellExecute(NULL,"open","cmd.exe",finalCommand,NULL,SW_HIDE))){
+	if(32 >= (int)(ShellExecute(NULL,"open","cmd.exe",finalCommand,NULL,SW_HIDE))){
 		Sleep(100);
-		fileName = fOpen("a.txt");
+		fileName = fopen("a.txt","w");
 		
 		if(fileName != NULL){
 		
