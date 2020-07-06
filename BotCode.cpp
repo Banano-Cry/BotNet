@@ -29,7 +29,7 @@ void cmd(char* ansVal, int ansLong, char *command){
 	
 	if(32 >= (int)(ShellExecute(NULL,"open","cmd.exe",finalCommand,NULL,SW_HIDE))){
 		Sleep(100);
-		fileName = fopen("a.txt","w");
+		fileName = fopen("a.txt","r");
 		
 		if(fileName != NULL){
 		
